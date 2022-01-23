@@ -26,11 +26,14 @@ class Post(models.Model):
     )
     group = models.ForeignKey(
         Group, on_delete=models.SET_NULL,
-        related_name="posts", blank=True, null=True
+        related_name='posts', blank=True, null=True
     )
 
+    class Meta:
+        ordering = ('pub_date',)
+
     def __str__(self):
-        return self.text
+        return self.text[:15]
 
 
 class Comment(models.Model):
@@ -60,5 +63,16 @@ class Follow(models.Model):
         related_name='following'
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'following'],
+                name='unique_follow'
+            )
+        ]
+
     def __str__(self):
-        return f'Пользователь: {self.user} - Автор: {self.following}'
+        return (
+            f'Пользователь: {self.user.username} - '
+            f'Автор: {self.following.username}'
+        )
